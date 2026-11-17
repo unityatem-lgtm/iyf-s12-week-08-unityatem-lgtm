@@ -1,54 +1,57 @@
-import { useState } from 'react'
+import { useForm } from '../hooks/useForm.js'
+import { useToggle } from '../hooks/useToggle.js'
 
-const EMPTY_FORM = { title: '', content: '' }
+const validate = (values) => {
+  const errors = {}
+  if (!values.title.trim()) errors.title = 'Title is required'
+  else if (values.title.length > 60) errors.title = 'Keep titles under 60 characters'
+  if (!values.content.trim()) errors.content = 'Content is required'
+  return errors
+}
 
-function CreatePost({ onCreate }) {
-  const [form, setForm] = useState(EMPTY_FORM)
-  const [error, setError] = useState('')
+function CreatePost({ onAddPost }) {
+  const { values, errors, touched, handleChange, handleBlur, validateAll, reset } =
+    useForm({ title: '', content: '' }, validate)
 
-  function handleChange(e) {
-    const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
-    if (error) setError('')
-  }
+  const { value: showPreview, toggle: togglePreview } = useToggle(false)
 
-  function handleSubmit(e) {
-    e.preventDefault() // Without this the page reloads and state is lost
-    if (!form.title.trim() || !form.content.trim()) {
-      setError('Title and content are required.')
-      return
-    }
-    onCreate({ title: form.title.trim(), content: form.content.trim() })
-    setForm(EMPTY_FORM)
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (!validateAll()) return
+    onAddPost({ title: values.title, content: values.content })
+    reset()
   }
 
   return (
-    <form className="create-post" onSubmit={handleSubmit}>
-      <h2>Create a Post</h2>
-      {error && <p className="field-error" role="alert">{error}</p>}
+    <form onSubmit={handleSubmit}>
+      <h3>Create Post</h3>
 
-      <label>
-        Title
-        <input
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Give it a title..."
-        />
-      </label>
+      <label htmlFor="title">Title</label>
+      <input
+        id="title"
+        name="title"
+        value={values.title}
+        onChange={handleChange}
+        onBlur={handleBlur}
+      />
+      {touched.title && errors.title && <p style={{ color: 'red' }}>{errors.title}</p>}
 
-      <label>
-        Content
-        <textarea
-          name="content"
-          value={form.content}
-          onChange={handleChange}
-          placeholder="Say a bit more..."
-          rows={3}
-        />
-      </label>
+      <label htmlFor="content">Content</label>
+      <textarea
+        id="content"
+        name="content"
+        value={values.content}
+        onChange={handleChange}
+        onBlur={handleBlur}
+      />
+      {touched.content && errors.content && <p style={{ color: 'red' }}>{errors.content}</p>}
 
-      <button className="btn-primary" type="submit">Publish Post</button>
+      <button type="button" onClick={togglePreview}>
+        {showPreview ? 'Hide Preview' : 'Show Preview'}
+      </button>
+      {showPreview && <p><b>Preview:</b> {values.content || 'Nothing to preview'}</p>}
+
+      <button type="submit">Publish</button>
     </form>
   )
 }

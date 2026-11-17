@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import PostList from './components/PostList.jsx'
 import CreatePost from './components/CreatePost.jsx'
+import { Layout } from './components/Layout.jsx'
 
 const INITIAL_POSTS = [
   { id: 1, title: 'Getting Started with React', content: 'Components are just functions that return UI.', author: 'Ava', likes: 12, createdAt: '2026-11-10' },
@@ -42,7 +43,7 @@ function App() {
   )
 
   return (
-    <div className="app">
+    <Layout>
       <header className="header">
         <h1>CommunityHub</h1>
         <p>Lesson 16 - State, Props & Lists</p>
@@ -64,7 +65,7 @@ function App() {
           <PostList posts={visiblePosts} onLike={handleLike} onDelete={handleDelete} />
         )}
       </main>
-    </div>
+    </Layout>
   )
 }
 

@@ -1,26 +1,15 @@
-import { Link, NavLink, Outlet } from 'react-router-dom'
 
-function Layout() {
+import { useLocalStorage } from '../hooks/useLocalStorage.js'
+
+export function Layout({ children }) {
+  const [theme, setTheme] = useLocalStorage('theme', 'light')
   return (
-    <div className="app">
-      <header className="header">
-        <Link to="/" className="logo">CommunityHub</Link>
-        <nav className="nav">
-          <NavLink to="/" end>Home</NavLink>
-          <NavLink to="/posts">Posts</NavLink>
-          <NavLink to="/about">About</NavLink>
-        </nav>
-      </header>
-
-      <main className="main">
-        <Outlet />
-      </main>
-
-      <footer className="footer">
-        <p>© 2026 CommunityHub. Built by IYF Season 12.</p>
-      </footer>
+    <div style={{ background: theme === 'dark' ? '#111' : 'white', color: theme === 'dark' ? 'white' : 'black', minHeight: '100vh' }}>
+      <a href="#main">Skip to content</a>
+      <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+        Switch to {theme === 'dark' ? 'Light' : 'Dark'} Mode
+      </button>
+      <main id="main">{children}</main>
     </div>
   )
 }
-
-export default Layout
